@@ -106,7 +106,14 @@ namespace Trainer
             });
             objs.Add(buttonUpgradeComputer.gameObject);
 
-           int counter = 1;
+            var buttonUpgradeServer = WindowManager.SpawnButton();
+            buttonUpgradeServer.GetComponentInChildren<UnityEngine.UI.Text>().text = "Upgrade all Server";
+            buttonUpgradeServer.onClick.AddListener(() => {
+                behavior.UpgradeAllServer();
+            });
+            objs.Add(buttonUpgradeComputer.gameObject);
+
+            int counter = 1;
             foreach (var item in objs)
             {
                 WindowManager.AddElementToElement(item, parent.gameObject, new Rect(0, counter * 32, 250, 32),
@@ -114,7 +121,7 @@ namespace Trainer
                 counter++;
             }
 
-
+            
             // Button for GenderChange
             // var buttonGenderChange = WindowManager.SpawnButton();
             //buttonGenderChange.GetComponentInChildren<UnityEngine.UI.Text>().text = "Change Employees to Female";

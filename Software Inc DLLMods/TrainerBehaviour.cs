@@ -134,6 +134,44 @@ namespace Trainer
             }
         }
 
+        internal void UpgradeAllServer()
+        {
+            if (ModActive && GameSettings.Instance != null && HUD.Instance != null)
+            {
+                Furniture[] furnList = GameSettings.Instance.sRoomManager.AllFurniture.Where(x => x.GetComponent(typeof(Server)) != null).ToArray();
+                HUD.Instance.serverWindow.ServerListUpdateEnabled = false;
+                bool flag = false;
+                SelectorController.Instance.Selected.Clear();
+                foreach (Furniture furn in furnList)
+                {
+                    if (furn.GetComputer().FurnitureUpgrade != null)
+                    {
+                        float price = furn.GetComputer().FurnitureUpgrade[0].gameObject.GetComponent<Furniture>().Cost;
+
+                        if ((Cheats.UnlockFurn || TimeOfDay.Instance.Year + SDateTime.BaseYear >= furn.GetComputer().FurnitureUpgrade[0].GetComponent<Furniture>().UnlockYear) && (GameSettings.Instance.MyCompany.CanMakeTransaction(-price)))
+                        {
+
+                            Furniture furniture = UpgradeFurniture(furn.GetComputer());
+                            furniture.gameObject.SetActive(true);
+                            SelectorController.Instance.Selected.Add((Selectable)furniture);
+                            GameSettings.Instance.MyCompany.MakeTransaction(-price, Company.TransactionCategory.Construction);
+                            CostDisplay.Instance.Show(price, furniture.transform.position);
+                            CostDisplay.Instance.FloatAway();
+                            flag = true;
+                        }
+                    }
+                }
+
+                HUD.Instance.serverWindow.ServerListUpdateEnabled = true;
+                if (!flag)
+                    return;
+                HUD.Instance.PlayFurniturePlace();
+                HUD.Instance.PlayKaching();
+                SelectorController.Instance.DoPostSelectChecks();
+                HUD.Instance.serverWindow.UpdateServerList();
+                HUD.Instance.AddPopupMessage(furnList.Length + " computers have been upgraded!", "Cogs", "", 0, 1);
+            }
+
         internal void LockStressOfEmployees(bool a)
         {
             LockStress = a;
@@ -178,6 +216,8 @@ namespace Trainer
             }
         }
 
+
+
         internal void UpgradeAllComputer()
         {
             if (ModActive && GameSettings.Instance != null && HUD.Instance != null)
@@ -190,9 +230,9 @@ namespace Trainer
                 {
                     if (furn.GetComputer().FurnitureUpgrade != null)
                     {
-                        float price = furn.GetComputer().FurnitureUpgrade.gameObject.GetComponent<Furniture>().Cost;
+                        float price = furn.GetComputer().FurnitureUpgrade[0].gameObject.GetComponent<Furniture>().Cost;
 
-                        if ((Cheats.UnlockFurn || TimeOfDay.Instance.Year + SDateTime.BaseYear >= furn.GetComputer().FurnitureUpgrade.GetComponent<Furniture>().UnlockYear) && (GameSettings.Instance.MyCompany.CanMakeTransaction(-price)))
+                        if ((Cheats.UnlockFurn || TimeOfDay.Instance.Year + SDateTime.BaseYear >= furn.GetComputer().FurnitureUpgrade[0].GetComponent<Furniture>().UnlockYear) && (GameSettings.Instance.MyCompany.CanMakeTransaction(-price)))
                         {
 
                             Furniture furniture = UpgradeFurniture(furn.GetComputer());
@@ -234,7 +274,7 @@ namespace Trainer
             UnityEngine.Object.Destroy((UnityEngine.Object)furn.gameObject);
             //if (SelectorController.Instance.DeleteParent(furn))
             //    UnityEngine.Object.Destroy((UnityEngine.Object)furn.SnappedTo.Parent.gameObject);
-            Furniture component3 = UnityEngine.Object.Instantiate<GameObject>(furn.FurnitureUpgrade).GetComponent<Furniture>();
+            Furniture component3 = UnityEngine.Object.Instantiate<GameObject>(furn.FurnitureUpgrade[0]).GetComponent<Furniture>();
             component3.RotationOffset = num;
             try
             {
