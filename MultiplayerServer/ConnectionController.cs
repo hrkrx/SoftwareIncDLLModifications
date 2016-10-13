@@ -7,6 +7,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Collections.Concurrent;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Xml.Serialization;
+using System.IO;
 
 namespace MultiplayerServer
 {
@@ -15,11 +19,13 @@ namespace MultiplayerServer
         public delegate void NewConnectionEvent();
         public NewConnectionEvent newConnectionEventHandler;
         public ConcurrentQueue<Command> commands;
+        public List<TcpClient> clients;
 
         public ConnectionController(NewConnectionEvent eventHandler)
         {
             newConnectionEventHandler = eventHandler;
             commands = new ConcurrentQueue<Command>();
+            clients = new List<TcpClient>();
         }
 
         public void StartListening()
@@ -31,6 +37,7 @@ namespace MultiplayerServer
             while(true)
             {
                 var newClient = listener.AcceptTcpClient();
+                clients.Add(newClient);
                 ThreadPool.QueueUserWorkItem(new WaitCallback(ConnectionHandler), newClient);
             }
 
@@ -40,8 +47,48 @@ namespace MultiplayerServer
         {
             var client = (TcpClient)tcp;
 
+            while(true)
+            {
+                if (client.Connected)
+                {
+                    Packet p = new Packet(client);
+                    Command cmd = commandFromPacket(p);
+                    switch (cmd.commandType)
+                    {
+                        case CommandType.Login:
+                            break;
+                        case CommandType.Logout:
+                            break;
+                        case CommandType.Hack:
+                            break;
+                        case CommandType.Blame:
+                            break;
+                        case CommandType.Update:
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
 
+        }
+        
+        public Command commandFromPacket(Packet p)
+        {
+            Command res;
+            XmlSerializer ser = new XmlSerializer(typeof(Command));
+            res = (Command)ser.Deserialize(new MemoryStream(p.data));
+            return res;
+        }
 
+        public Packet packetFromCommand(Command c)
+        {
+            Packet res;
+            XmlSerializer ser = new XmlSerializer(typeof(Command));
+            MemoryStream ms = new MemoryStream();
+            ser.Serialize(ms, c);
+            res = new Packet(ms.ToArray());
+            return res;
         }
     }
 }

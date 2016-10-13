@@ -144,14 +144,14 @@ namespace Trainer
                 SelectorController.Instance.Selected.Clear();
                 foreach (Furniture furn in furnList)
                 {
-                    if (furn.GetComputer().FurnitureUpgrade != null)
+                    if (furn.FurnitureUpgrade != null)
                     {
-                        float price = furn.GetComputer().FurnitureUpgrade[0].gameObject.GetComponent<Furniture>().Cost;
+                        float price = furn.FurnitureUpgrade[0].gameObject.GetComponent<Furniture>().Cost;
 
-                        if ((Cheats.UnlockFurn || TimeOfDay.Instance.Year + SDateTime.BaseYear >= furn.GetComputer().FurnitureUpgrade[0].GetComponent<Furniture>().UnlockYear) && (GameSettings.Instance.MyCompany.CanMakeTransaction(-price)))
+                        if ((Cheats.UnlockFurn || TimeOfDay.Instance.Year + SDateTime.BaseYear >= furn.FurnitureUpgrade[0].GetComponent<Furniture>().UnlockYear) && (GameSettings.Instance.MyCompany.CanMakeTransaction(-price)))
                         {
 
-                            Furniture furniture = UpgradeFurniture(furn.GetComputer());
+                            Furniture furniture = UpgradeFurniture(furn);
                             furniture.gameObject.SetActive(true);
                             SelectorController.Instance.Selected.Add((Selectable)furniture);
                             GameSettings.Instance.MyCompany.MakeTransaction(-price, Company.TransactionCategory.Construction);
@@ -171,6 +171,7 @@ namespace Trainer
                 HUD.Instance.serverWindow.UpdateServerList();
                 HUD.Instance.AddPopupMessage(furnList.Length + " computers have been upgraded!", "Cogs", "", 0, 1);
             }
+        }
 
         internal void LockStressOfEmployees(bool a)
         {

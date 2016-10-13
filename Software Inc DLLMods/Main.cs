@@ -111,7 +111,7 @@ namespace Trainer
             buttonUpgradeServer.onClick.AddListener(() => {
                 behavior.UpgradeAllServer();
             });
-            objs.Add(buttonUpgradeComputer.gameObject);
+            objs.Add(buttonUpgradeServer.gameObject);
 
             int counter = 1;
             foreach (var item in objs)

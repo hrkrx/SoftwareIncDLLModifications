@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace MultiplayerServer
 {
+    [Serializable]
     public class Command
     {
         public CommandType commandType;
