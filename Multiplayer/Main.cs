@@ -4,7 +4,7 @@ using System.Linq;
 using static System.Net.Mime.MediaTypeNames;
 using System.Collections.Generic;
 
-namespace Trainer
+namespace Multiplayer
 {
     //Your mod should have exactly one class that implements the ModMeta interface
     public class Main : ModMeta

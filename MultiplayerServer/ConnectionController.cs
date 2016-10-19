@@ -19,13 +19,13 @@ namespace MultiplayerServer
         public delegate void NewConnectionEvent();
         public NewConnectionEvent newConnectionEventHandler;
         public ConcurrentQueue<Command> commands;
-        public List<TcpClient> clients;
+        public List<SoftwareIncClient> clients;
 
         public ConnectionController(NewConnectionEvent eventHandler)
         {
             newConnectionEventHandler = eventHandler;
             commands = new ConcurrentQueue<Command>();
-            clients = new List<TcpClient>();
+            clients = new List<SoftwareIncClient>();
         }
 
         public void StartListening()
@@ -37,7 +37,8 @@ namespace MultiplayerServer
             while(true)
             {
                 var newClient = listener.AcceptTcpClient();
-                clients.Add(newClient);
+                SoftwareIncClient s = new SoftwareIncClient(newClient, "noname");
+                clients.Add(s);
                 ThreadPool.QueueUserWorkItem(new WaitCallback(ConnectionHandler), newClient);
             }
 

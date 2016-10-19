@@ -56,9 +56,26 @@ namespace Multiplayer
 
         internal void Connect(string text)
         {
+            IPAddress ip = IPAddress.Parse(text);
+            IPEndPoint endPoint = new IPEndPoint(ip, 0);
             TcpClient connection = new TcpClient();
-            connection.Connect("");
+            connection.Connect(endPoint);
             MultiplayerGlobalCache.MPCache.Add("connection", connection);
+        }
+
+        internal void Login()
+        {
+
+        }
+
+        internal void Logout()
+        {
+
+        }
+
+        internal void UpdateCompany()
+        {
+
         }
     }
 
