@@ -11,6 +11,10 @@ namespace MultiplayerServer
     {
         static void Main(string[] args)
         {
+            ConnectionController.NewConnectionEvent e = null;
+            ConnectionController c = new ConnectionController(e);
+            c.StartListening();
+
         }
     }
 }

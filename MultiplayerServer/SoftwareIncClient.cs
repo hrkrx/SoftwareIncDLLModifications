@@ -10,8 +10,8 @@ namespace MultiplayerServer
 {
     public class SoftwareIncClient
     {
-        TcpClient client;
-        string name;
+        public TcpClient client;
+        public string name;
         public string id;
 
         public SoftwareIncClient (TcpClient c, string name)

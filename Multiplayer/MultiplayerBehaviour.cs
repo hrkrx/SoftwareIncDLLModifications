@@ -6,20 +6,28 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
-using System.Xml.Serialization;
 using UnityEngine;
 using UnityEngine.UI;
+using MultiplayerTypes;
 
 namespace Multiplayer
 {
     public class MultiplayerBehaviour : ModBehaviour
     {
-        public string ip = "";  
+        public string ip = "79.143.188.80";  
         public bool ModActive = false;
         public bool loggedin = false;
-        int updatefrequency = 1000;
+        int updatefrequency = 10;
         int updatecounter = 0;
+
+
+        ~MultiplayerBehaviour()
+        {
+            Logout();
+        }
+
         void Start()
         {
             //All ModBehaviours has a function to load settings from the mod's settings file
@@ -70,7 +78,7 @@ namespace Multiplayer
         internal void Connect(string text)
         {
             IPAddress ip = IPAddress.Parse(text);
-            IPEndPoint endPoint = new IPEndPoint(ip, 0);                                                                                                                       
+            IPEndPoint endPoint = new IPEndPoint(ip, 9999);                                                                                                                       
             TcpClient connection = new TcpClient();
             connection.Connect(endPoint);
             MultiplayerGlobalCache.MPCache.Add("connection", connection);
@@ -81,15 +89,14 @@ namespace Multiplayer
         {
             Command c = new Command();
             c.commandType = CommandType.Login;
-            XmlSerializer ser = new XmlSerializer(typeof(Company));
+            BinaryFormatter bf = new BinaryFormatter();
             MemoryStream ms = new MemoryStream();
-            ser.Serialize(ms, GameSettings.Instance.MyCompany);
+            bf.Serialize(ms, c);
             StreamReader sr = new StreamReader(ms);
             c.serializedCompany = sr.ReadToEnd();
             c.source = GameSettings.Instance.MyCompany.Name;
-            ser = new XmlSerializer(typeof(Command));
             ms = new MemoryStream();
-            ser.Serialize(ms, c);
+            bf.Serialize(ms, c);
             Packet p = new Packet(ms.ToArray());
             p.send((TcpClient)MultiplayerGlobalCache.MPCache["connection"]);
             loggedin = true;
@@ -100,27 +107,27 @@ namespace Multiplayer
             Command c = new Command();
             c.commandType = CommandType.Logout;
             c.source = GameSettings.Instance.MyCompany.Name;
-            XmlSerializer ser = new XmlSerializer(typeof(Command));
+            BinaryFormatter bf = new BinaryFormatter();
             MemoryStream ms = new MemoryStream();
-            ser.Serialize(ms, c);
+            bf.Serialize(ms, c);
             Packet p = new Packet(ms.ToArray());
             p.send((TcpClient)MultiplayerGlobalCache.MPCache["connection"]);
             ((TcpClient)MultiplayerGlobalCache.MPCache["connection"]).Close();
+            MultiplayerGlobalCache.MPCache.Remove("connection");
         }
 
         internal void UpdateCompany()
         {
             Command c = new Command();
             c.commandType = CommandType.Update;
-            XmlSerializer ser = new XmlSerializer(typeof(Company));
+            BinaryFormatter bf = new BinaryFormatter();
             MemoryStream ms = new MemoryStream();
-            ser.Serialize(ms, GameSettings.Instance.MyCompany);
+            bf.Serialize(ms, c);
             StreamReader sr = new StreamReader(ms);
             c.serializedCompany = sr.ReadToEnd();
             c.source = GameSettings.Instance.MyCompany.Name;
-            ser = new XmlSerializer(typeof(Command));
             ms = new MemoryStream();
-            ser.Serialize(ms, c);
+            bf.Serialize(ms, c);
             Packet p = new Packet(ms.ToArray());
             p.send((TcpClient)MultiplayerGlobalCache.MPCache["connection"]);
         }

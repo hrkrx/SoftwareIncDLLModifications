@@ -23,20 +23,6 @@ namespace Multiplayer
             WindowManager.AddElementToElement(label.gameObject, parent.gameObject, new Rect(0, 0, 250, 32),
                 new Rect(0, 0, 0, 0));
 
-            //TextBox for IP
-            var textBoxIP = WindowManager.SpawnInputbox();
-            textBoxIP.GetComponentInChildren<UnityEngine.UI.Text>().text = "Add some Money";
-            objs.Add(textBoxIP.gameObject);
-
-            //Button for some Money
-            var buttonConnect = WindowManager.SpawnButton();
-            buttonConnect.GetComponentInChildren<UnityEngine.UI.Text>().text = "Add some Money";
-            buttonConnect.onClick.AddListener(() =>
-            {
-                behavior.Connect(textBoxIP.text);
-            });
-            objs.Add(buttonConnect.gameObject);
-
             int counter = 1;
             foreach (var item in objs)
             {
@@ -61,7 +47,7 @@ namespace Multiplayer
         public string Name
         {
             //This will be displayed as the header in the Options window
-            get { return "Trainer V1"; }
+            get { return "Multiplayer V1"; }
         }
     }
 }
