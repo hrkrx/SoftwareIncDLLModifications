@@ -19,13 +19,13 @@ namespace MultiplayerServer
         public delegate void NewConnectionEvent();
         public NewConnectionEvent newConnectionEventHandler;
         public ConcurrentQueue<Command> commands;
-        public List<SoftwareIncClient> clients;
+        public ConcurrentDictionary<string, SoftwareIncClient> clients;
 
         public ConnectionController(NewConnectionEvent eventHandler)
         {
             newConnectionEventHandler = eventHandler;
             commands = new ConcurrentQueue<Command>();
-            clients = new List<SoftwareIncClient>();
+            clients = new ConcurrentDictionary<string, SoftwareIncClient>();
         }
 
         public void StartListening()
@@ -37,8 +37,7 @@ namespace MultiplayerServer
             while(true)
             {
                 var newClient = listener.AcceptTcpClient();
-                SoftwareIncClient s = new SoftwareIncClient(newClient, "noname");
-                clients.Add(s);
+                
                 ThreadPool.QueueUserWorkItem(new WaitCallback(ConnectionHandler), newClient);
             }
 
@@ -47,8 +46,9 @@ namespace MultiplayerServer
         public void ConnectionHandler(object tcp)
         {
             var client = (TcpClient)tcp;
-
-            while(true)
+            SoftwareIncClient s = null;
+            bool closing = false;
+            while (!closing)
             {
                 if (client.Connected)
                 {
@@ -57,8 +57,14 @@ namespace MultiplayerServer
                     switch (cmd.commandType)
                     {
                         case CommandType.Login:
+                            s = new SoftwareIncClient(client, cmd.source);
+                            SoftwareIncClient.generateId(s);
+                            clients.TryAdd(s.id, s);
                             break;
                         case CommandType.Logout:
+                            clients.TryRemove(s.id, out s);
+                            client.Close();
+                            closing = true;
                             break;
                         case CommandType.Hack:
                             break;
