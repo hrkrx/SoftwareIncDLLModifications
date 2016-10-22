@@ -36,5 +36,19 @@ namespace MultiplayerServer
                 throw new Exception("Invalid IP-Address for ID-generation");
             }
         }
+
+        public static SoftwareIncClient getByName(IEnumerable<SoftwareIncClient> list, string name)
+        {
+            SoftwareIncClient res = null;
+            foreach (var item in list)
+            {
+                if (item.name == name)
+                {
+                    res = item;
+                    break;
+                }
+            }
+            return res;
+        }
     }
 }

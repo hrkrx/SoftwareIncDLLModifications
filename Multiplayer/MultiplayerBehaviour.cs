@@ -11,16 +11,17 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using MultiplayerTypes;
+using System.Timers;
 
 namespace Multiplayer
 {
     public class MultiplayerBehaviour : ModBehaviour
     {
-        public string ip = "79.143.188.80";  
+        public string ip = "79.143.188.80";
         public bool ModActive = false;
         public bool loggedin = false;
-        int updatefrequency = 10;
-        int updatecounter = 0;
+        int updatefrequency = 5000;
+        Timer t = new Timer();
 
 
         ~MultiplayerBehaviour()
@@ -33,9 +34,19 @@ namespace Multiplayer
             //All ModBehaviours has a function to load settings from the mod's settings file
             //Note that everything is saved in strings
             //This function uses the default string converter for the generic type argument
+            t.Elapsed += T_Elapsed;
+            
             if (ModActive && GameSettings.Instance != null && HUD.Instance != null)
             {
 
+            }
+        }
+
+        private void T_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            if (ModActive && GameSettings.Instance != null && HUD.Instance != null)
+            {
+                UpdateCompany();
             }
         }
 
@@ -43,14 +54,7 @@ namespace Multiplayer
         {
             if (ModActive && GameSettings.Instance != null && HUD.Instance != null)
             {
-                if (updatecounter == updatefrequency)
-                {
-                    updatecounter = 0;
-                    Update();
-                } else
-                {
-                    updatecounter++;
-                }
+                
             }
         }
 
@@ -62,6 +66,8 @@ namespace Multiplayer
                 HUD.Instance.AddPopupMessage("Multiplayer V1 has been activated!", "Cogs", "", 0, 1);
                 Connect(ip);
                 Login();
+                t.Interval = updatefrequency;
+                t.Start();
             }
         }
 
@@ -70,6 +76,7 @@ namespace Multiplayer
             ModActive = false;
             if (!ModActive && GameSettings.Instance != null && HUD.Instance != null)
             {
+                t.Stop();
                 HUD.Instance.AddPopupMessage("Multiplayer V1 has been deactivated!", "Cogs", "", 0, 1);
                 Logout();
             }
