@@ -9,6 +9,7 @@ namespace Multiplayer
     //Your mod should have exactly one class that implements the ModMeta interface
     public class Main : ModMeta
     {
+        string ip = "79.143.188.80";
         //This function is used to generate the content in the "Mods" section of the options window
         //The behaviors array contains all behaviours that have been spawned for this mod, one for each implementation
         public void ConstructOptionsScreen(RectTransform parent, ModBehaviour[] behaviours)
@@ -23,6 +24,19 @@ namespace Multiplayer
             WindowManager.AddElementToElement(label.gameObject, parent.gameObject, new Rect(0, 0, 250, 32),
                 new Rect(0, 0, 0, 0));
 
+
+            var connectButton = WindowManager.SpawnButton();
+            connectButton.GetComponentInChildren<UnityEngine.UI.Text>().text = "Connect";
+            connectButton.onClick.AddListener(() => {
+                WindowManager.SpawnInputDialog("Enter IP of the server you want to connect", "Connect", ip, (result) => {
+                    behavior.StartConnect(result);
+                });
+            });
+            objs.Add(connectButton.gameObject);
+
+            var infoButton = WindowManager.SpawnButton();
+
+
             int counter = 1;
             foreach (var item in objs)
             {
@@ -30,18 +44,6 @@ namespace Multiplayer
                 new Rect(0, 0, 0, 0));
                 counter++;
             }
-
-
-            // Button for GenderChange
-            // var buttonGenderChange = WindowManager.SpawnButton();
-            //buttonGenderChange.GetComponentInChildren<UnityEngine.UI.Text>().text = "Change Employees to Female";
-            //buttonGenderChange.onClick.AddListener(() => {
-            //    behavior.EmployeesToFemale();
-            //});
-            //WindowManager.AddElementToElement(buttonGenderChange.gameObject, parent.gameObject, new Rect(0, 128, 250, 32),
-            //    new Rect(0, 0, 0, 0));
-
-
         }
 
         public string Name

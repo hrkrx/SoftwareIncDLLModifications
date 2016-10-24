@@ -17,7 +17,6 @@ namespace Multiplayer
 {
     public class MultiplayerBehaviour : ModBehaviour
     {
-        public string ip = "79.143.188.80";
         public bool ModActive = false;
         public bool loggedin = false;
         int updatefrequency = 5000;
@@ -58,16 +57,24 @@ namespace Multiplayer
             }
         }
 
+        internal void StartConnect(string result)
+        {
+            if (ModActive && GameSettings.Instance != null && HUD.Instance != null && !loggedin)
+            {
+                Connect(result);
+                Login();
+                t.Interval = updatefrequency;
+                t.Start();
+            }
+        }
+
         public override void OnActivate()
         {
             ModActive = true;
             if (ModActive && GameSettings.Instance != null && HUD.Instance != null)
             {
                 HUD.Instance.AddPopupMessage("Multiplayer V1 has been activated!", "Cogs", "", 0, 1);
-                Connect(ip);
-                Login();
-                t.Interval = updatefrequency;
-                t.Start();
+               
             }
         }
 
@@ -121,6 +128,7 @@ namespace Multiplayer
             p.send((TcpClient)MultiplayerGlobalCache.MPCache["connection"]);
             ((TcpClient)MultiplayerGlobalCache.MPCache["connection"]).Close();
             MultiplayerGlobalCache.MPCache.Remove("connection");
+            loggedin = false;
         }
 
         internal void UpdateCompany()
