@@ -17,25 +17,24 @@ namespace Multiplayer
             //We need a reference to a behavior to read and write from the mod settings file
             var behavior = behaviours.OfType<MultiplayerBehaviour>().First();
             List<GameObject> objs = new List<GameObject>();
-
+            List<GameObject> windowsObjs = new List<GameObject>();
             //Start by spawning a label
             var label = WindowManager.SpawnLabel();
             label.text = "This Mod was created by LtPain";
             WindowManager.AddElementToElement(label.gameObject, parent.gameObject, new Rect(0, 0, 250, 32),
                 new Rect(0, 0, 0, 0));
 
-
+            #region ModControls
             var connectButton = WindowManager.SpawnButton();
             connectButton.GetComponentInChildren<UnityEngine.UI.Text>().text = "Connect";
-            connectButton.onClick.AddListener(() => {
-                WindowManager.SpawnInputDialog("Enter IP of the server you want to connect", "Connect", ip, (result) => {
+            connectButton.onClick.AddListener(() =>
+            {
+                WindowManager.SpawnInputDialog("Enter IP of the server you want to connect", "Connect", ip, (result) =>
+                {
                     behavior.StartConnect(result);
                 });
             });
             objs.Add(connectButton.gameObject);
-
-            var infoButton = WindowManager.SpawnButton();
-
 
             int counter = 1;
             foreach (var item in objs)
@@ -43,7 +42,8 @@ namespace Multiplayer
                 WindowManager.AddElementToElement(item, parent.gameObject, new Rect(0, counter * 32, 250, 32),
                 new Rect(0, 0, 0, 0));
                 counter++;
-            }
+            } 
+            #endregion
         }
 
         public string Name

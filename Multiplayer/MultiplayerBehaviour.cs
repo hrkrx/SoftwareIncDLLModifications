@@ -17,11 +17,18 @@ namespace Multiplayer
 {
     public class MultiplayerBehaviour : ModBehaviour
     {
+        #region Member
+
         public bool ModActive = false;
         public bool loggedin = false;
         int updatefrequency = 5000;
         Timer t = new Timer();
+        List<Player> Player = new List<Player>();
+        int placementPosition = 20;
 
+        #endregion
+
+        #region Unity Calls
 
         ~MultiplayerBehaviour()
         {
@@ -33,19 +40,12 @@ namespace Multiplayer
             //All ModBehaviours has a function to load settings from the mod's settings file
             //Note that everything is saved in strings
             //This function uses the default string converter for the generic type argument
+            SetStrings();
             t.Elapsed += T_Elapsed;
-            
+
             if (ModActive && GameSettings.Instance != null && HUD.Instance != null)
             {
 
-            }
-        }
-
-        private void T_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            if (ModActive && GameSettings.Instance != null && HUD.Instance != null)
-            {
-                UpdateCompany();
             }
         }
 
@@ -53,18 +53,8 @@ namespace Multiplayer
         {
             if (ModActive && GameSettings.Instance != null && HUD.Instance != null)
             {
-                
-            }
-        }
-
-        internal void StartConnect(string result)
-        {
-            if (ModActive && GameSettings.Instance != null && HUD.Instance != null && !loggedin)
-            {
-                Connect(result);
-                Login();
-                t.Interval = updatefrequency;
-                t.Start();
+                InitUI();
+                UpdateUI();
             }
         }
 
@@ -74,7 +64,7 @@ namespace Multiplayer
             if (ModActive && GameSettings.Instance != null && HUD.Instance != null)
             {
                 HUD.Instance.AddPopupMessage("Multiplayer V1 has been activated!", "Cogs", "", 0, 1);
-               
+
             }
         }
 
@@ -89,16 +79,56 @@ namespace Multiplayer
             }
         }
 
+        #endregion
+
+        #region Recurring Events
+        private void T_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            if (ModActive && GameSettings.Instance != null && HUD.Instance != null)
+            {
+                UpdateCompany();
+            }
+        }
+
+        private void UpdateUI()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void InitUI()
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region Network
+        internal void StartConnect(string result)
+        {
+            if (ModActive && GameSettings.Instance != null && HUD.Instance != null && !loggedin)
+            {
+                Connect(result);
+                Login();
+                t.Interval = updatefrequency;
+                t.Start();
+            }
+        }
+
+
+
         internal void Connect(string text)
         {
             IPAddress ip = IPAddress.Parse(text);
-            IPEndPoint endPoint = new IPEndPoint(ip, 9999);                                                                                                                       
+            IPEndPoint endPoint = new IPEndPoint(ip, 9999);
             TcpClient connection = new TcpClient();
             connection.Connect(endPoint);
             MultiplayerGlobalCache.MPCache.Add("connection", connection);
             HUD.Instance.AddPopupMessage("Connected successfully to multiplayerserver!", "Cogs", "", 0, 1);
         }
 
+        #endregion
+
+        #region MultiplayerInteraction
         internal void Login()
         {
             Command c = new Command();
@@ -146,6 +176,40 @@ namespace Multiplayer
             Packet p = new Packet(ms.ToArray());
             p.send((TcpClient)MultiplayerGlobalCache.MPCache["connection"]);
         }
+        #endregion
+
+        #region UI
+
+        public void AddButtonToUI(UnityEngine.UI.Button btn)
+        {
+            WindowManager.AddElementToElement(btn.gameObject, HUD.Instance.gameObject, new UnityEngine.Rect(0, placementPosition, 100, 20), new UnityEngine.Rect(0, 0, 0, 0));
+            placementPosition += int.Parse(btn.gameObject.GetComponent<Renderer>().bounds.size.y.ToString()) + 2;
+        }
+
+        public void SpawnWindowOnHUD(GUIWindow wnd)
+        {
+
+        }
+
+        private void SetString(string key, string translatedKey)
+        {
+            Localization.Translation translation = Localization.Translations[Localization.CurrentTranslation];
+            if (!translation.UI.ContainsKey(key))
+            {
+                translation.UI.Add(key, translatedKey);
+            }
+            else
+            {
+                translation.UI[key] = translatedKey;
+            }
+        }
+
+        public void SetStrings()
+        {
+            SetString("Multiplayer", "Multiplayer");
+        }
+
+        #endregion
     }
 
     public static class Extensions
