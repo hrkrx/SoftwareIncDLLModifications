@@ -188,7 +188,21 @@ namespace Multiplayer
 
         public void SpawnWindowOnHUD(GUIWindow wnd)
         {
+            WindowManager.AddElementToElement(wnd.gameObject, HUD.Instance.gameObject, new Rect(0, 40, 300, 150), new Rect(0, 0, 0, 0));
+        }
 
+        public GUIWindow CreateWindow(string label, List<GameObject> content)
+        {
+            var wnd = WindowManager.SpawnWindow();
+            wnd.Title = "";
+            wnd.StartHidden = true;
+            wnd.OnlyHide = true;
+
+            var serverLabel = WindowManager.SpawnLabel();
+            serverLabel.text = label;
+            WindowManager.AddElementToElement(serverLabel.gameObject, wnd.gameObject, new Rect(10, 80, 280, 500), new Rect(0, 0, 0, 0));
+
+            return wnd;
         }
 
         private void SetString(string key, string translatedKey)
