@@ -12,6 +12,7 @@ namespace MultiplayerServer
     public class EfficientLogger
     {
         static UdpClient udp = null;
+        static IPEndPoint groupEP = new IPEndPoint(IPAddress.Broadcast, 16000);
 
         private static void ConnectLogger()
         {
@@ -23,7 +24,7 @@ namespace MultiplayerServer
             if (udp == null || !udp.Client.Connected) ConnectLogger();
             message = "[" + DateTime.Now.ToShortTimeString() + "][LOG]" + message;
             byte[] data = getData(message);
-            udp.Send(data, data.Length, "127.0.0.1", 9998);
+            udp.Send(data, data.Length, groupEP);
         }
 
         public static void Debug(string message)
@@ -31,7 +32,7 @@ namespace MultiplayerServer
             if (udp == null || !udp.Client.Connected) ConnectLogger();
             message = "[" + DateTime.Now.ToShortTimeString() + "][DEBUG]" + message;
             byte[] data = getData(message);
-            udp.Send(data, data.Length, "127.0.0.1", 9998);
+            udp.Send(data, data.Length, groupEP);
         }
 
         public static void Error(string message)
@@ -39,7 +40,7 @@ namespace MultiplayerServer
             if (udp == null || !udp.Client.Connected) ConnectLogger();
             message = "[" + DateTime.Now.ToShortTimeString() + "][ERROR]" + message;
             byte[] data = getData(message);
-            udp.Send(data, data.Length, "127.0.0.1", 9998);
+            udp.Send(data, data.Length, groupEP);
         }
 
         private static byte[] getData(string message)
@@ -58,14 +59,15 @@ namespace MultiplayerServer
         {
             UdpClient receiver = new UdpClient();
             receiver.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            receiver.Connect("127.0.0.1", 9998);
-            IPEndPoint RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
+
+            IPEndPoint recieverEP = new IPEndPoint(IPAddress.Any, 16000);
+            receiver.Client.Bind(recieverEP);
             Console.WriteLine("ThreadLog");
             while (true)
             {
                 try
                 {
-                    byte[] data = receiver.Receive(ref RemoteIpEndPoint);
+                    byte[] data = receiver.Receive(ref recieverEP);
                     Console.WriteLine(Encoding.Unicode.GetChars(data));
                 }
                 catch (Exception ex)
