@@ -36,7 +36,7 @@ namespace MultiplayerServer
             while (true)
             {
                 var newClient = listener.AcceptTcpClient();
-                Console.WriteLine("New Client connected.");
+                EfficientLogger.Log("New Client connected.");
                 ThreadPool.QueueUserWorkItem(new WaitCallback(ConnectionHandler), newClient);
             }
 
@@ -53,7 +53,7 @@ namespace MultiplayerServer
                     if (c != null)
                     {
                         SoftwareIncClient s = SoftwareIncClient.getByName(clients.Values, c.source);
-                        Console.WriteLine("Command " + c.commandType + " Issued by " + s.name + " | " + s.id);
+                        EfficientLogger.Log("Command " + c.commandType + " Issued by " + s.name + " | " + s.id);
                         distribute(c, s);
                     }
                 }
@@ -78,13 +78,13 @@ namespace MultiplayerServer
                                 s = new SoftwareIncClient(client, cmd.source);
                                 SoftwareIncClient.generateId(s);
                                 clients.TryAdd(s.id, s);
-                                Console.WriteLine("New Login: " + s.name + " | " + s.id);
+                                EfficientLogger.Log("New Login: " + s.name + " | " + s.id);
                                 break;
                             case CommandType.Logout:
                                 clients.TryRemove(s.id, out s);
                                 client.Close();
                                 closing = true;
-                                Console.WriteLine("Logout: " + s.name + " | " + s.id);
+                                EfficientLogger.Log("Logout: " + s.name + " | " + s.id);
                                 break;
                             case CommandType.Hack:
                                 break;
@@ -92,7 +92,7 @@ namespace MultiplayerServer
                                 break;
                             case CommandType.Update:
                                 commands.Enqueue(cmd);
-                                Console.WriteLine("New Update: " + s.name + " | " + s.id);
+                                EfficientLogger.Log("New Update: " + s.name + " | " + s.id);
                                 break;
                             default:
                                 break;
@@ -100,14 +100,14 @@ namespace MultiplayerServer
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine("Exception Caused by: " + s.name + " | " + s.id);
-                        Console.WriteLine(ex.Message);
+                        EfficientLogger.Log("Exception Caused by: " + s.name + " | " + s.id);
+                        EfficientLogger.Log(ex.Message);
                         clients.TryRemove(s.id, out s);
                         if (client.Connected)
                         {
                             client.Close();
                         }
-                        Console.WriteLine("Removed from active Connections");
+                        EfficientLogger.Log("Removed from active Connections");
                         break;
                     }
                     

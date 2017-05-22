@@ -15,7 +15,7 @@ namespace MultiplayerServer
             Version version = Assembly.GetEntryAssembly().GetName().Version;
             Console.WriteLine("Starting SoftwareInc Multiplayerserver " + version.ToString());
             EfficientLogger.writeToConsole();
-            EfficientLogger.Log("TEST");
+            
             ConnectionController.NewConnectionEvent e = null;
             ConnectionController c = new ConnectionController(e);
             c.StartListening();

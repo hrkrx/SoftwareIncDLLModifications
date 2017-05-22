@@ -3,13 +3,14 @@ using System;
 using System.Linq;
 using static System.Net.Mime.MediaTypeNames;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 namespace Multiplayer
 {
     //Your mod should have exactly one class that implements the ModMeta interface
     public class Main : ModMeta
     {
-        string ip = "79.143.188.80";
+        string ip = "192.168.2.113";
         //This function is used to generate the content in the "Mods" section of the options window
         //The behaviors array contains all behaviours that have been spawned for this mod, one for each implementation
         public void ConstructOptionsScreen(RectTransform parent, ModBehaviour[] behaviours)
@@ -18,6 +19,11 @@ namespace Multiplayer
             var behavior = behaviours.OfType<MultiplayerBehaviour>().First();
             List<GameObject> objs = new List<GameObject>();
             List<GameObject> windowsObjs = new List<GameObject>();
+            var gameWindow = HUD.Instance;
+            var screenSizeX = Screen.width;
+            var screenSizeY = Screen.height;
+            bool connected = false;
+
             //Start by spawning a label
             var label = WindowManager.SpawnLabel();
             label.text = "This Mod was created by LtPain";
@@ -25,16 +31,17 @@ namespace Multiplayer
                 new Rect(0, 0, 0, 0));
 
             #region ModControls
-            var connectButton = WindowManager.SpawnButton();
-            connectButton.GetComponentInChildren<UnityEngine.UI.Text>().text = "Connect";
-            connectButton.onClick.AddListener(() =>
+            Button mainButton = WindowManager.SpawnButton();
+            mainButton.GetComponentInChildren<UnityEngine.UI.Text>().text = "Multiplayer";
+            mainButton.onClick.AddListener(() =>
             {
                 WindowManager.SpawnInputDialog("Enter IP of the server you want to connect", "Connect", ip, (result) =>
                 {
                     behavior.StartConnect(result);
                 });
             });
-            objs.Add(connectButton.gameObject);
+            WindowManager.AddElementToElement(mainButton.gameObject, gameWindow.gameObject, new Rect(screenSizeX - 80f, 0f, 80f, 32f), new Rect(0f, 0f, 0f, 0f));
+
 
             int counter = 1;
             foreach (var item in objs)

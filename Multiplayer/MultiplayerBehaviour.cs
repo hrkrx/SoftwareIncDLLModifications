@@ -64,7 +64,6 @@ namespace Multiplayer
             if (ModActive && GameSettings.Instance != null && HUD.Instance != null)
             {
                 HUD.Instance.AddPopupMessage("Multiplayer V1 has been activated!", "Cogs", "", 0, 1);
-
             }
         }
 
@@ -92,12 +91,12 @@ namespace Multiplayer
 
         private void UpdateUI()
         {
-            throw new NotImplementedException();
+            
         }
 
         private void InitUI()
         {
-            throw new NotImplementedException();
+            
         }
 
         #endregion
@@ -182,6 +181,7 @@ namespace Multiplayer
 
         public void AddButtonToUI(UnityEngine.UI.Button btn)
         {
+
             WindowManager.AddElementToElement(btn.gameObject, HUD.Instance.gameObject, new UnityEngine.Rect(0, placementPosition, 100, 20), new UnityEngine.Rect(0, 0, 0, 0));
             placementPosition += int.Parse(btn.gameObject.GetComponent<Renderer>().bounds.size.y.ToString()) + 2;
         }
