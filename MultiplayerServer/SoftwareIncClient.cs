@@ -13,13 +13,21 @@ namespace MultiplayerServer
         public TcpClient client;
         public string name;
         public string id;
+        private float money;
+        private int year;
 
-        public SoftwareIncClient (TcpClient c, string name)
+        public SoftwareIncClient (TcpClient c, string name, float money, int year)
         {
             client = c;
             this.name = name;
+            this.money = money;
+            this.year = year;
         }
 
+        public float GetLvl()
+        {
+            return year * (money / 100000);
+        }
         public static void generateId(SoftwareIncClient s)
         {
             IPEndPoint remoteIpEndPoint = s.client.Client.RemoteEndPoint as IPEndPoint;

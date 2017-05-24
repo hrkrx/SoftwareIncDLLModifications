@@ -10,7 +10,8 @@ namespace MultiplayerTypes
         public string source;
         public string message;
         public string serializedCompany;
-
+        public float money;
+        public int year;
     }
 
     [Serializable]

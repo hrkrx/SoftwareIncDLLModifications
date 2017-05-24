@@ -25,7 +25,7 @@ namespace Multiplayer
         Timer t = new Timer();
         List<Player> Player = new List<Player>();
         int placementPosition = 20;
-
+        TableLayoutWindow modWindow;
         #endregion
 
         #region Unity Calls
@@ -45,7 +45,7 @@ namespace Multiplayer
 
             if (ModActive && GameSettings.Instance != null && HUD.Instance != null)
             {
-
+                
             }
         }
 
@@ -53,8 +53,7 @@ namespace Multiplayer
         {
             if (ModActive && GameSettings.Instance != null && HUD.Instance != null)
             {
-                InitUI();
-                UpdateUI();
+                
             }
         }
 
@@ -64,6 +63,7 @@ namespace Multiplayer
             if (ModActive && GameSettings.Instance != null && HUD.Instance != null)
             {
                 HUD.Instance.AddPopupMessage("Multiplayer V1 has been activated!", "Cogs", "", 0, 1);
+                StartUpdateListener();
             }
         }
 
@@ -78,6 +78,18 @@ namespace Multiplayer
             }
         }
 
+        internal void CreateMainWindow()
+        {
+            if (modWindow != null)
+            {
+                modWindow.Close();
+            }
+            else
+            {
+                modWindow = new TableLayoutWindow();
+            }
+            modWindow.Show();
+        }
         #endregion
 
         #region Recurring Events
@@ -89,21 +101,20 @@ namespace Multiplayer
             }
         }
 
-        private void UpdateUI()
+        private void StartUpdatingUI()
         {
-            
-        }
-
-        private void InitUI()
-        {
-            
+            if (ModActive && GameSettings.Instance != null && HUD.Instance != null)
+            {
+                
+            }
         }
 
         #endregion
 
         #region Network
-        internal void StartConnect(string result)
+        internal bool StartConnect(string result)
         {
+            bool dialogResult = false;
             if (ModActive && GameSettings.Instance != null && HUD.Instance != null && !loggedin)
             {
                 Connect(result);
@@ -111,6 +122,7 @@ namespace Multiplayer
                 t.Interval = updatefrequency;
                 t.Start();
             }
+            return dialogResult;
         }
 
 
@@ -125,6 +137,34 @@ namespace Multiplayer
             HUD.Instance.AddPopupMessage("Connected successfully to multiplayerserver!", "Cogs", "", 0, 1);
         }
 
+        internal void StartUpdateListener()
+        {
+            while (ModActive)
+            {
+                Packet p = new Packet((TcpClient)MultiplayerGlobalCache.MPCache["connection"]);
+                
+                Command cmd;
+                BinaryFormatter bf = new BinaryFormatter();
+                cmd = (Command)bf.Deserialize(new MemoryStream(p.data));
+                switch (cmd.commandType)
+                {
+                    case CommandType.Login:
+                        break;
+                    case CommandType.Logout:
+                        break;
+                    case CommandType.Hack:
+                        break;
+                    case CommandType.Blame:
+                        break;
+                    case CommandType.Update:
+                        modWindow.Update(cmd);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        
         #endregion
 
         #region MultiplayerInteraction
@@ -134,9 +174,8 @@ namespace Multiplayer
             c.commandType = CommandType.Login;
             BinaryFormatter bf = new BinaryFormatter();
             MemoryStream ms = new MemoryStream();
-            bf.Serialize(ms, c);
-            StreamReader sr = new StreamReader(ms);
-            c.serializedCompany = sr.ReadToEnd();
+            bf.Serialize(ms, GameSettings.Instance.MyCompany);
+            c.serializedCompany = Convert.ToBase64String(ms.ToArray());
             c.source = GameSettings.Instance.MyCompany.Name;
             ms = new MemoryStream();
             bf.Serialize(ms, c);
@@ -164,16 +203,25 @@ namespace Multiplayer
         {
             Command c = new Command();
             c.commandType = CommandType.Update;
+            c.money = GameSettings.Instance.MyCompany.Money;
             BinaryFormatter bf = new BinaryFormatter();
             MemoryStream ms = new MemoryStream();
-            bf.Serialize(ms, c);
-            StreamReader sr = new StreamReader(ms);
-            c.serializedCompany = sr.ReadToEnd();
+            bf.Serialize(ms, GameSettings.Instance.MyCompany);
+            c.serializedCompany = Convert.ToBase64String(ms.ToArray());
             c.source = GameSettings.Instance.MyCompany.Name;
             ms = new MemoryStream();
             bf.Serialize(ms, c);
             Packet p = new Packet(ms.ToArray());
             p.send((TcpClient)MultiplayerGlobalCache.MPCache["connection"]);
+
+        }
+
+        public Company GetCompanyFromCommand(Command cmd)
+        {
+            var bf = new BinaryFormatter();
+            var ms = new MemoryStream(Convert.FromBase64String(cmd.serializedCompany));
+            var company = (Company)bf.Deserialize(ms);
+            return company;
         }
         #endregion
 

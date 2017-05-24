@@ -20,9 +20,9 @@ namespace Multiplayer
             List<GameObject> objs = new List<GameObject>();
             List<GameObject> windowsObjs = new List<GameObject>();
             var gameWindow = HUD.Instance;
+            TableLayoutWindow ModWindow = null;
             var screenSizeX = Screen.width;
             var screenSizeY = Screen.height;
-            bool connected = false;
 
             //Start by spawning a label
             var label = WindowManager.SpawnLabel();
@@ -35,10 +35,18 @@ namespace Multiplayer
             mainButton.GetComponentInChildren<UnityEngine.UI.Text>().text = "Multiplayer";
             mainButton.onClick.AddListener(() =>
             {
-                WindowManager.SpawnInputDialog("Enter IP of the server you want to connect", "Connect", ip, (result) =>
+                if (!behavior.loggedin)
                 {
-                    behavior.StartConnect(result);
-                });
+                    WindowManager.SpawnInputDialog("Enter IP of the server you want to connect", "Connect", ip, (result) =>
+                    {
+                        behavior.StartConnect(result);
+                    });
+                }
+                else
+                {
+                    behavior.CreateMainWindow();
+                }
+                
             });
             WindowManager.AddElementToElement(mainButton.gameObject, gameWindow.gameObject, new Rect(screenSizeX - 80f, 0f, 80f, 32f), new Rect(0f, 0f, 0f, 0f));
 

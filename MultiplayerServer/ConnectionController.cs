@@ -75,7 +75,7 @@ namespace MultiplayerServer
                         switch (cmd.commandType)
                         {
                             case CommandType.Login:
-                                s = new SoftwareIncClient(client, cmd.source);
+                                s = new SoftwareIncClient(client, cmd.source, cmd.money, cmd.year);
                                 SoftwareIncClient.generateId(s);
                                 clients.TryAdd(s.id, s);
                                 EfficientLogger.Log("New Login: " + s.name + " | " + s.id);
@@ -120,6 +120,7 @@ namespace MultiplayerServer
         {
             Command res;
             BinaryFormatter bf = new BinaryFormatter();
+            EfficientLogger.Log("Deserialize Packet");
             res = (Command)bf.Deserialize(new MemoryStream(p.data));
             return res;
         }
@@ -139,11 +140,19 @@ namespace MultiplayerServer
             Packet p = packetFromCommand(c);
             foreach (var item in clients.Keys)
             {
+                SoftwareIncClient sic = null;
                 switch (c.commandType)
                 {
                     case CommandType.Login:
                         break;
                     case CommandType.Logout:
+                        clients.TryGetValue(item, out sic);
+                        clients.TryRemove(sic.id, out sic);
+                        if (sic.client.Connected)
+                        {
+                            sic.client.Close();
+                        }
+                        EfficientLogger.Log(item + " logout.");
                         break;
                     case CommandType.Hack:
                         break;
@@ -152,7 +161,6 @@ namespace MultiplayerServer
                     case CommandType.Update:
                         if (s.id != item)
                         {
-                            SoftwareIncClient sic = null;
                             clients.TryGetValue(item, out sic);
                             p.send(sic.client);
                         }
